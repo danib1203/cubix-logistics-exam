@@ -1,6 +1,7 @@
 package hu.cubix.logistics.controller;
 
 import hu.cubix.logistics.NoSecurityConfiguration;
+import hu.cubix.logistics.dto.AddressDto;
 import hu.cubix.logistics.dto.DelayDto;
 import hu.cubix.logistics.dto.MilestoneDto;
 import hu.cubix.logistics.dto.TransportPlanDto;
@@ -136,6 +137,22 @@ public class TransportPlanControllerIT {
         MilestoneDto milestoneDtoStart = transportPlanDto.getSections().get(0).getStartMilestone();
         milestoneDtoStart.setId(-1L);
         DelayDto delayDto = setupDelayDto(10, milestoneDtoStart);
+
+        HttpStatusCode statusOfRegisterDelay = getStatusOfRegisterDelay(transportPlanId, delayDto);
+
+        assertThat(statusOfRegisterDelay).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    @Description("Test that a milestone not part of section throws 400 BAD_REQUEST error")
+    void testMilestoneNotPartOfSection() {
+        TransportPlanDto transportPlanDto = getTransportPlans().get(0);
+        long transportPlanId = transportPlanDto.getId();
+        MilestoneDto milestoneDto = new MilestoneDto();
+        milestoneDto.setId(0L);
+        milestoneDto.setPlannedTime(LocalDateTime.now());
+        milestoneDto.setAddress(new AddressDto());
+        DelayDto delayDto = setupDelayDto(10, milestoneDto);
 
         HttpStatusCode statusOfRegisterDelay = getStatusOfRegisterDelay(transportPlanId, delayDto);
 
